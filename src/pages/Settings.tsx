@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { User, Upload, Shuffle, LogOut, Check, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { User, Upload, Shuffle, LogOut, Check, Loader2, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,32 +7,97 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { useLanguage } from "@/hooks/useLanguage";
+import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const languages = [
-  { code: "en", label: "English" },
-  { code: "ru", label: "Русский" },
-  { code: "kk", label: "Қазақша" },
+  { code: "en", label: "English", flag: "🇺🇸" },
+  { code: "ru", label: "Русский", flag: "🇷🇺" },
+  { code: "kk", label: "Қазақша", flag: "🇰🇿" },
 ];
 
 const Settings = () => {
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const { profile, loading, updateProfile } = useProfile();
+  const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState("");
-  const [selectedLang, setSelectedLang] = useState("ru");
   const [satScore, setSatScore] = useState("");
   const [ieltsScore, setIeltsScore] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   useEffect(() => {
     if (profile) {
       setName(profile.name || "");
-      setSelectedLang(profile.language || "ru");
       setSatScore(profile.sat_score?.toString() || "");
       setIeltsScore(profile.ielts_score?.toString() || "");
     }
   }, [profile]);
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be less than 5MB");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${user.id}/avatar.${fileExt}`;
+
+      // Upload the file
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      // Update the profile with the new avatar URL
+      await updateProfile({ avatar_url: publicUrl + "?t=" + Date.now() });
+      toast.success(t("avatarUpdated"));
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      toast.error(t("avatarError"));
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const generateRandomAvatar = async () => {
+    if (!user) return;
+    setUploadingAvatar(true);
+    try {
+      // Use DiceBear API for random avatars
+      const seed = Math.random().toString(36).substring(7);
+      const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${seed}`;
+      await updateProfile({ avatar_url: avatarUrl });
+      toast.success(t("avatarUpdated"));
+    } catch (error) {
+      console.error("Error generating avatar:", error);
+      toast.error(t("avatarError"));
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -40,16 +105,15 @@ const Settings = () => {
     setSaving(false);
     
     if (error) {
-      toast.error("Ошибка при сохранении");
+      toast.error(t("errorSaving"));
     } else {
-      toast.success("Настройки сохранены!");
+      toast.success(t("settingsSaved"));
     }
   };
 
   const handleLanguageChange = async (lang: string) => {
-    setSelectedLang(lang);
-    await updateProfile({ language: lang });
-    toast.success("Язык изменён");
+    await setLanguage(lang as "ru" | "en" | "kk");
+    toast.success(t("languageChanged"));
   };
 
   const handleSaveScores = async () => {
@@ -61,7 +125,7 @@ const Settings = () => {
       if (sat >= 400 && sat <= 1600) {
         updates.sat_score = sat;
       } else {
-        toast.error("SAT должен быть от 400 до 1600");
+        toast.error(t("satError"));
         setSaving(false);
         return;
       }
@@ -74,7 +138,7 @@ const Settings = () => {
       if (ielts >= 1 && ielts <= 9) {
         updates.ielts_score = ielts;
       } else {
-        toast.error("IELTS должен быть от 1 до 9");
+        toast.error(t("ieltsError"));
         setSaving(false);
         return;
       }
@@ -86,15 +150,15 @@ const Settings = () => {
     setSaving(false);
     
     if (error) {
-      toast.error("Ошибка при сохранении");
+      toast.error(t("errorSaving"));
     } else {
-      toast.success("Результаты сохранены!");
+      toast.success(t("resultsSaved"));
     }
   };
 
   const handleLogout = async () => {
     await signOut();
-    toast.success("Вы вышли из аккаунта");
+    toast.success(t("loggedOut"));
     navigate("/");
   };
 
@@ -107,88 +171,110 @@ const Settings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24">
       <header className="bg-card border-b border-border px-4 py-4">
         <div className="container max-w-lg mx-auto">
-          <h1 className="text-xl font-bold">Настройки</h1>
+          <h1 className="text-xl font-bold">{t("settings")}</h1>
         </div>
       </header>
 
-      <main className="container max-w-lg mx-auto px-4 py-6 space-y-6">
+      <main className="container max-w-lg mx-auto px-4 py-6 space-y-5">
         {/* Profile Card */}
-        <div className="gamification-card animate-slide-up">
-          <h2 className="font-semibold mb-4">Профиль</h2>
+        <div className="bg-card rounded-2xl p-5 border border-border shadow-card animate-fade-in">
+          <h2 className="font-bold mb-4">{t("profile")}</h2>
           
           {/* Avatar */}
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-20 h-20 rounded-2xl bg-secondary flex items-center justify-center">
-              {profile?.avatar_url ? (
-                <img 
-                  src={profile.avatar_url} 
-                  alt="Avatar" 
-                  className="w-full h-full rounded-2xl object-cover" 
-                />
-              ) : (
-                <User className="w-10 h-10 text-muted-foreground" />
+            <div className="relative">
+              <Avatar className="w-20 h-20 border-2 border-border">
+                <AvatarImage src={profile?.avatar_url || undefined} alt="Avatar" />
+                <AvatarFallback className="bg-secondary text-secondary-foreground text-2xl font-bold">
+                  {profile?.name?.charAt(0)?.toUpperCase() || <User className="w-10 h-10" />}
+                </AvatarFallback>
+              </Avatar>
+              {uploadingAvatar && (
+                <div className="absolute inset-0 bg-background/80 rounded-full flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
               )}
             </div>
             <div className="flex flex-col gap-2">
-              <Button variant="outline" size="sm" className="gap-2">
-                <Upload className="w-4 h-4" />
-                Загрузить
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                className="hidden"
+              />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-2 rounded-xl"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+              >
+                <Camera className="w-4 h-4" />
+                {t("upload")}
               </Button>
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="gap-2 rounded-xl"
+                onClick={generateRandomAvatar}
+                disabled={uploadingAvatar}
+              >
                 <Shuffle className="w-4 h-4" />
-                Случайно
+                {t("random")}
               </Button>
             </div>
           </div>
 
           {/* Name Input */}
           <div className="space-y-2">
-            <Label htmlFor="name">Имя</Label>
+            <Label htmlFor="name">{t("name")}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ваше имя"
+              placeholder={t("yourName")}
               className="h-12 rounded-xl"
             />
           </div>
 
           <Button 
             onClick={handleSave}
-            className="w-full mt-4 bg-foreground text-background hover:bg-foreground/90"
+            className="w-full mt-4 h-12 rounded-xl bg-foreground text-background hover:bg-foreground/90 font-semibold"
             disabled={saving}
           >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Сохранить"}
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : t("save")}
           </Button>
         </div>
 
         {/* Language Card */}
-        <div className="gamification-card animate-slide-up" style={{ animationDelay: "0.1s" }}>
-          <h2 className="font-semibold mb-4">Язык</h2>
+        <div className="bg-card rounded-2xl p-5 border border-border shadow-card animate-fade-in" style={{ animationDelay: "0.1s" }}>
+          <h2 className="font-bold mb-4">{t("language")}</h2>
           <div className="flex flex-wrap gap-2">
             {languages.map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => handleLanguageChange(lang.code)}
-                className={`chip flex items-center gap-2 ${
-                  selectedLang === lang.code
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-secondary-foreground"
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  language === lang.code
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                 }`}
               >
-                {selectedLang === lang.code && <Check className="w-4 h-4" />}
+                <span className="text-lg">{lang.flag}</span>
                 {lang.label}
+                {language === lang.code && <Check className="w-4 h-4 ml-1" />}
               </button>
             ))}
           </div>
         </div>
 
         {/* Test Scores Card */}
-        <div className="gamification-card animate-slide-up" style={{ animationDelay: "0.15s" }}>
-          <h2 className="font-semibold mb-4">Результаты тестов</h2>
+        <div className="bg-card rounded-2xl p-5 border border-border shadow-card animate-fade-in" style={{ animationDelay: "0.15s" }}>
+          <h2 className="font-bold mb-4">{t("testResults")}</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="sat">SAT Score</Label>
@@ -220,23 +306,23 @@ const Settings = () => {
           </div>
           <Button 
             variant="outline" 
-            className="w-full mt-4"
+            className="w-full mt-4 h-12 rounded-xl font-semibold"
             onClick={handleSaveScores}
             disabled={saving}
           >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Сохранить результаты"}
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : t("saveResults")}
           </Button>
         </div>
 
         {/* Logout */}
-        <div className="animate-slide-up" style={{ animationDelay: "0.2s" }}>
+        <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
           <Button
             variant="ghost"
             onClick={handleLogout}
-            className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+            className="w-full h-12 rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10 font-semibold"
           >
             <LogOut className="w-4 h-4 mr-2" />
-            Выйти
+            {t("logout")}
           </Button>
         </div>
       </main>
