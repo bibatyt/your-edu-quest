@@ -1,21 +1,16 @@
 import { useEffect } from "react";
-import { Flame, Zap, Target, ListTodo, Lightbulb, Trophy, Loader2 } from "lucide-react";
+import { Flame, Target, Lightbulb, CheckCircle2, Circle, ChevronRight, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useProfile } from "@/hooks/useProfile";
 import { useDailyQuests } from "@/hooks/useDailyQuests";
-
-const wisdomQuotes = [
-  "Образование — это не подготовка к жизни; образование — это сама жизнь. — Джон Дьюи",
-  "Будущее принадлежит тем, кто верит в красоту своей мечты. — Элеонора Рузвельт",
-  "Успех — это не конечная точка, а путешествие. — Ральф Уолдо Эмерсон",
-  "Единственный способ делать великую работу — любить то, что вы делаете. — Стив Джобс",
-];
+import { useLanguage } from "@/hooks/useLanguage";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Dashboard = () => {
   const { profile, loading, updateStreak } = useProfile();
   const { quests, toggleQuest, loading: questsLoading } = useDailyQuests();
+  const { t } = useLanguage();
 
-  // Update streak on visit
   useEffect(() => {
     if (profile) {
       updateStreak();
@@ -32,133 +27,134 @@ const Dashboard = () => {
 
   const xpToNextLevel = 100;
   const currentLevelXP = profile ? profile.xp % xpToNextLevel : 0;
-  const wisdomQuote = wisdomQuotes[Math.floor(Math.random() * wisdomQuotes.length)];
+  const wisdomKeys = ["wisdom1", "wisdom2", "wisdom3", "wisdom4"];
+  const wisdomKey = wisdomKeys[Math.floor(Math.random() * wisdomKeys.length)];
+
+  const getLevelTitle = (level: number) => {
+    if (level <= 2) return t("newbie");
+    if (level <= 5) return "Explorer";
+    if (level <= 10) return "Scholar";
+    return "Master";
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header with gamification stats */}
-      <header className="bg-card border-b border-border px-4 py-3">
-        <div className="container max-w-lg mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center text-primary-foreground font-bold">
-              {profile?.level || 1}
+    <div className="min-h-screen bg-background pb-24">
+      <main className="container max-w-lg mx-auto px-4 py-5 space-y-5">
+        {/* Profile Header */}
+        <div className="flex items-center gap-3 animate-fade-in">
+          <div className="relative">
+            <Avatar className="w-14 h-14 border-3 border-primary ring-2 ring-primary/20">
+              <AvatarImage src={profile?.avatar_url || undefined} alt="Avatar" />
+              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-bold text-lg">
+                {profile?.name?.charAt(0)?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-xs font-bold px-1.5 py-0.5 rounded-md shadow-sm">
+              LVL
             </div>
-            <Progress value={(currentLevelXP / xpToNextLevel) * 100} className="w-24 h-2" />
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 text-sm font-semibold">
-              <Zap className="w-5 h-5 text-xp" />
-              <span>{profile?.xp || 0}</span>
-            </div>
-            <div className="flex items-center gap-1 text-sm font-semibold">
-              <Flame className={`w-5 h-5 text-accent ${(profile?.streak || 0) > 0 ? 'animate-fire' : ''}`} />
-              <span>{profile?.streak || 0}</span>
-            </div>
+          <div>
+            <p className="text-sm text-muted-foreground">{t("level")} {profile?.level || 1}</p>
+            <p className="font-bold text-foreground">{getLevelTitle(profile?.level || 1)}</p>
           </div>
         </div>
-      </header>
 
-      <main className="container max-w-lg mx-auto px-4 py-6 space-y-6">
         {/* Welcome Card */}
-        <div className="gradient-primary rounded-3xl p-6 text-primary-foreground animate-slide-up">
-          <h1 className="text-xl font-bold mb-1">
-            С возвращением, {profile?.name || "Студент"} 👋
+        <div className="animate-fade-in" style={{ animationDelay: "0.05s" }}>
+          <h1 className="text-2xl font-bold text-foreground mb-1">
+            {t("welcomeBack")}, {profile?.name || "Студент"} 👋
           </h1>
-          <div className="flex items-center gap-4 text-sm opacity-90">
-            <span>Уровень {profile?.level || 1}</span>
-            <span>•</span>
-            <span>{profile?.xp || 0} XP</span>
+          <p className="text-muted-foreground text-sm mb-4">{t("readyToConquer")}</p>
+          
+          {/* XP Progress */}
+          <div className="flex items-center justify-between text-sm mb-2">
+            <span className="text-primary font-bold">{currentLevelXP} XP</span>
+            <span className="text-muted-foreground">{xpToNextLevel - currentLevelXP} {t("xpToLevel")} {(profile?.level || 1) + 1}</span>
           </div>
-          <div className="mt-4 bg-primary-foreground/20 rounded-full px-3 py-1 inline-block text-sm">
-            {xpToNextLevel - currentLevelXP} XP до Lvl {(profile?.level || 1) + 1}
-          </div>
+          <Progress value={(currentLevelXP / xpToNextLevel) * 100} className="h-3 rounded-full" />
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4 animate-slide-up" style={{ animationDelay: "0.1s" }}>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 gap-3 animate-fade-in" style={{ animationDelay: "0.1s" }}>
           {/* Streak Card */}
-          <div className="gamification-card bg-accent/10 border-accent/20">
-            <div className="flex items-center gap-2 mb-2">
-              <Flame className={`w-6 h-6 text-accent ${(profile?.streak || 0) > 0 ? 'animate-fire' : ''}`} />
-              <span className="text-2xl font-bold">{profile?.streak || 0}</span>
+          <div className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl p-4 text-white shadow-lg">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                <Flame className={`w-6 h-6 ${(profile?.streak || 0) > 0 ? 'animate-pulse' : ''}`} />
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              дн. 🔥 {(profile?.streak || 0) > 0 ? "В огне!" : "Начни серию!"}
-            </p>
+            <p className="text-3xl font-bold mt-2">{profile?.streak || 0} <span className="text-lg font-normal">{t("days")}</span></p>
+            <p className="text-white/80 text-sm">🔥 {(profile?.streak || 0) > 0 ? t("onFire") : "Start streak!"}</p>
           </div>
 
           {/* Goal Card */}
-          <div className="gamification-card">
-            <div className="flex items-center gap-2 mb-2">
-              <Target className="w-6 h-6 text-primary" />
+          <div className="bg-card rounded-2xl p-4 border border-border shadow-card">
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                <Target className="w-5 h-5 text-primary" />
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </div>
-            <p className="text-sm font-medium">
-              {profile?.target_university || "Поставь цель"}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {profile?.target_university ? "Твоя цель" : "Выбери университет"}
+            <p className="text-xs text-primary font-semibold mt-2">{t("goal")}</p>
+            <p className="font-medium text-foreground truncate">
+              {profile?.target_university ? profile.target_university.slice(0, 12) + "..." : t("setGoal")}
             </p>
           </div>
         </div>
 
         {/* Daily Quests */}
-        <div className="gamification-card animate-slide-up" style={{ animationDelay: "0.2s" }}>
+        <div className="bg-card rounded-2xl p-4 border border-border shadow-card animate-fade-in" style={{ animationDelay: "0.15s" }}>
           <div className="flex items-center gap-2 mb-4">
-            <ListTodo className="w-5 h-5 text-primary" />
-            <h2 className="font-semibold">Ежедневные задания</h2>
+            <span className="text-xl">🎯</span>
+            <h2 className="font-bold text-foreground">{t("dailyQuests")}</h2>
           </div>
           {questsLoading ? (
-            <div className="flex justify-center py-4">
+            <div className="flex justify-center py-6">
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
             <div className="space-y-3">
-              {quests.map((quest) => (
-                <label
+              {quests.map((quest, index) => (
+                <button
                   key={quest.id}
-                  className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors ${
-                    quest.completed ? "bg-success/10" : "bg-muted/50 hover:bg-muted"
+                  onClick={() => toggleQuest(quest.id, quest.completed)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
+                    quest.completed 
+                      ? "bg-primary/10 border border-primary/20" 
+                      : "bg-muted/30 hover:bg-muted/50 border border-transparent"
                   }`}
+                  style={{ animationDelay: `${0.2 + index * 0.05}s` }}
                 >
-                  <input
-                    type="checkbox"
-                    checked={quest.completed}
-                    onChange={() => toggleQuest(quest.id, quest.completed)}
-                    className="w-5 h-5 rounded-md border-2 border-primary text-primary focus:ring-primary"
-                  />
-                  <span className={`text-sm ${quest.completed ? "line-through text-muted-foreground" : ""}`}>
+                  {quest.completed ? (
+                    <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0" />
+                  ) : (
+                    <Circle className="w-6 h-6 text-muted-foreground flex-shrink-0" />
+                  )}
+                  <span className={`text-sm text-left flex-1 ${quest.completed ? "text-muted-foreground line-through" : "text-foreground"}`}>
                     {quest.quest_title}
                   </span>
-                  <span className="ml-auto text-xs text-primary font-medium">+{quest.xp_reward} XP</span>
-                </label>
+                  <span className={`text-sm font-semibold whitespace-nowrap ${quest.completed ? "text-primary" : "text-primary"}`}>
+                    +{quest.xp_reward} XP
+                  </span>
+                  {!quest.completed && (
+                    <span className="text-xs text-muted-foreground">0/1</span>
+                  )}
+                </button>
               ))}
             </div>
           )}
         </div>
 
         {/* Wisdom Card */}
-        <div className="gradient-accent rounded-2xl p-5 animate-slide-up" style={{ animationDelay: "0.3s" }}>
-          <div className="flex items-center gap-2 mb-3 text-accent-foreground">
-            <Lightbulb className="w-5 h-5" />
-            <span className="font-semibold text-sm">Мудрость дня</span>
-          </div>
-          <p className="text-accent-foreground/90 text-sm leading-relaxed">
-            "{wisdomQuote}"
-          </p>
-        </div>
-
-        {/* Achievement Teaser */}
-        <div className="gamification-card animate-slide-up" style={{ animationDelay: "0.4s" }}>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
-              <Trophy className="w-6 h-6 text-primary" />
+        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-2xl p-4 border border-emerald-200/50 dark:border-emerald-800/30 animate-fade-in" style={{ animationDelay: "0.25s" }}>
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Lightbulb className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="font-semibold">
-                {(profile?.xp || 0) >= 100 ? "Первый уровень!" : "Первые шаги"}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {(profile?.xp || 0) >= 100 ? "Достигнут уровень 2" : "Завершите первое задание"}
+              <p className="text-xs font-bold text-primary uppercase tracking-wide mb-1">{t("wisdomOfDay")}</p>
+              <p className="text-sm text-foreground/80 leading-relaxed">
+                "{t(wisdomKey)}"
               </p>
             </div>
           </div>
