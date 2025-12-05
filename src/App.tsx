@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Path from "./pages/Path";
+import Opportunities from "./pages/Opportunities";
 import Counselor from "./pages/Counselor";
 import Statistics from "./pages/Statistics";
 import Settings from "./pages/Settings";
@@ -33,6 +34,7 @@ const App = () => (
                 <Route element={<AppLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/path" element={<Path />} />
+                  <Route path="/opportunities" element={<Opportunities />} />
                   <Route path="/counselor" element={<Counselor />} />
                   <Route path="/statistics" element={<Statistics />} />
                   <Route path="/settings" element={<Settings />} />
