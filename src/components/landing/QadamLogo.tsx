@@ -14,42 +14,30 @@ export function QadamLogo({ size = 36, className = "" }: QadamLogoProps) {
       className={className}
     >
       <defs>
-        <linearGradient id="qadamGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="hsl(var(--primary))" />
-          <stop offset="100%" stopColor="hsl(var(--accent))" />
+        <linearGradient id="qadamGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#14B8A6" />
+          <stop offset="100%" stopColor="#0D9488" />
         </linearGradient>
       </defs>
       
-      {/* Main circular path representing journey */}
-      <circle
-        cx="20"
-        cy="20"
-        r="16"
-        stroke="url(#qadamGradient)"
-        strokeWidth="3"
-        fill="none"
-        strokeLinecap="round"
-        strokeDasharray="75 25"
-        transform="rotate(-45 20 20)"
-      />
+      {/* Background circle */}
+      <circle cx="20" cy="20" r="18" fill="url(#qadamGreen)" />
       
-      {/* Step marks - representing progress */}
-      <circle cx="20" cy="8" r="2.5" fill="url(#qadamGradient)" />
-      <circle cx="32" cy="20" r="2" fill="url(#qadamGradient)" opacity="0.7" />
-      <circle cx="20" cy="32" r="1.5" fill="url(#qadamGradient)" opacity="0.5" />
-      
-      {/* Center Q element */}
+      {/* Letter Q */}
       <text
         x="20"
-        y="24"
+        y="26"
         textAnchor="middle"
-        fontSize="14"
+        fontSize="18"
         fontWeight="700"
-        fill="url(#qadamGradient)"
+        fill="white"
         fontFamily="system-ui, sans-serif"
       >
         Q
       </text>
+      
+      {/* Small step accent */}
+      <circle cx="30" cy="28" r="3" fill="white" opacity="0.3" />
     </svg>
   );
 }
