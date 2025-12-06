@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { BookDemoModal } from "./BookDemoModal";
+import { FeedbackModal } from "./FeedbackModal";
 import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 
 export function Header() {
@@ -20,6 +21,7 @@ export function Header() {
         
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
+          <FeedbackModal />
           <BookDemoModal />
           <Link to="/auth">
             <Button variant="outline" size="sm">{t.signIn}</Button>
