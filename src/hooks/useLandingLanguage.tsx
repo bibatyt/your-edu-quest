@@ -75,7 +75,7 @@ export const landingTranslations = {
     testimonial1Author: 'Almas M.',
     testimonial1Uni: 'NU',
     testimonial2Quote: 'The gamification system motivated me to prepare every day. A 90-day streak helped me score 1500+ on SAT!',
-    testimonial2Author: 'Timur A.',
+    testimonial2Author: 'Tamerlan A.',
     testimonial2Uni: 'MIT',
     
     // FAQ
@@ -151,7 +151,7 @@ export const landingTranslations = {
     testimonial1Author: 'Алмас М.',
     testimonial1Uni: 'NU',
     testimonial2Quote: 'Система геймификации мотивировала меня готовиться каждый день. Серия в 90 дней помогла мне набрать 1500+ на SAT!',
-    testimonial2Author: 'Тимур А.',
+    testimonial2Author: 'Тамерлан А.',
     testimonial2Uni: 'MIT',
     
     // FAQ
@@ -227,7 +227,7 @@ export const landingTranslations = {
     testimonial1Author: 'Алмас М.',
     testimonial1Uni: 'NU',
     testimonial2Quote: 'Геймификация жүйесі мені күн сайын дайындалуға ынталандырды. 90 күндік серия SAT-та 1500+ ұпай жинауға көмектесті!',
-    testimonial2Author: 'Тимур А.',
+    testimonial2Author: 'Тамерлан А.',
     testimonial2Uni: 'MIT',
     
     // FAQ
