@@ -13,6 +13,7 @@ import Onboarding from "./pages/Onboarding";
 import Reviews from "./pages/Reviews";
 import Dashboard from "./pages/Dashboard";
 import Counselor from "./pages/Counselor";
+import Path from "./pages/Path";
 import Settings from "./pages/Settings";
 import EssayEngine from "./pages/EssayEngine";
 import NotFound from "./pages/NotFound";
@@ -35,6 +36,7 @@ const App = () => (
               <Route element={<ProtectedRoute />}>
                 <Route element={<AppLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/path" element={<Path />} />
                   <Route path="/counselor" element={<Counselor />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/essay" element={<EssayEngine />} />

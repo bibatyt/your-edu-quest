@@ -1,22 +1,53 @@
 export interface OnboardingData {
-  // Step 1: Goal
+  // Step 1: Role
+  role: 'student' | 'parent';
+  
+  // Step 2: Goal
   mainGoal: string;
   
-  // Step 2: Profile + Universities
+  // Step 3: EFC Data
+  residenceCountry: string;
+  incomeRange: 'low' | 'medium' | 'high';
+  budgetRange: 'low' | 'medium' | 'high';
+  
+  // Step 4: Profile + Universities
   currentGrade: string;
   targetCountry: string;
   targetUniversities: string[];
   
-  // Step 3: Auth (handled separately)
+  // Step 5: Auth (handled separately)
 }
 
-export type OnboardingStep = 1 | 2 | 3;
+export type OnboardingStep = 1 | 2 | 3 | 4 | 5;
+
+export const ROLES = [
+  { 
+    id: 'student', 
+    label: { ru: 'Школьник / Абитуриент', en: 'Student / Applicant', kk: 'Оқушы / Абитуриент' },
+    description: { 
+      ru: 'Я готовлюсь к поступлению', 
+      en: 'I am preparing for admission', 
+      kk: 'Мен түсуге дайындалып жатырмын' 
+    },
+    icon: '🎓'
+  },
+  { 
+    id: 'parent', 
+    label: { ru: 'Родитель / Опекун', en: 'Parent / Guardian', kk: 'Ата-ана / Қамқоршы' },
+    description: { 
+      ru: 'Я помогаю ребёнку поступить', 
+      en: 'I am helping my child get admitted', 
+      kk: 'Мен балама түсуге көмектесемін' 
+    },
+    icon: '👨‍👩‍👧'
+  },
+] as const;
 
 export const GOALS = [
-  { id: 'top_uni', label: { ru: 'Поступить в топовый университет', en: 'Get into a top university', kk: 'Үздік университетке түсу' } },
-  { id: 'scholarship', label: { ru: 'Получить грант/стипендию', en: 'Get a scholarship', kk: 'Грант/стипендия алу' } },
-  { id: 'abroad', label: { ru: 'Учиться за рубежом', en: 'Study abroad', kk: 'Шетелде оқу' } },
-  { id: 'career', label: { ru: 'Построить карьеру мечты', en: 'Build a dream career', kk: 'Арман мансабын құру' } },
+  { id: 'top_uni', label: { ru: 'Поступить в топовый университет', en: 'Get into a top university', kk: 'Үздік университетке түсу' }, icon: '🏛️' },
+  { id: 'scholarship', label: { ru: 'Получить грант/стипендию', en: 'Get a scholarship', kk: 'Грант/стипендия алу' }, icon: '💰' },
+  { id: 'abroad', label: { ru: 'Учиться за рубежом', en: 'Study abroad', kk: 'Шетелде оқу' }, icon: '✈️' },
+  { id: 'career', label: { ru: 'Построить карьеру мечты', en: 'Build a dream career', kk: 'Арман мансабын құру' }, icon: '🚀' },
 ] as const;
 
 export const GRADES = [
@@ -37,58 +68,117 @@ export const COUNTRIES = [
   { id: 'kz', label: '🇰🇿 Казахстан', flag: '🇰🇿' },
 ] as const;
 
+export const RESIDENCE_COUNTRIES = [
+  { id: 'kz', label: { ru: '🇰🇿 Казахстан', en: '🇰🇿 Kazakhstan', kk: '🇰🇿 Қазақстан' } },
+  { id: 'ru', label: { ru: '🇷🇺 Россия', en: '🇷🇺 Russia', kk: '🇷🇺 Ресей' } },
+  { id: 'uz', label: { ru: '🇺🇿 Узбекистан', en: '🇺🇿 Uzbekistan', kk: '🇺🇿 Өзбекстан' } },
+  { id: 'kg', label: { ru: '🇰🇬 Кыргызстан', en: '🇰🇬 Kyrgyzstan', kk: '🇰🇬 Қырғызстан' } },
+  { id: 'other', label: { ru: '🌍 Другая страна', en: '🌍 Other country', kk: '🌍 Басқа ел' } },
+] as const;
+
+export const INCOME_RANGES = [
+  { 
+    id: 'low', 
+    label: { ru: 'До $30,000 / год', en: 'Under $30,000 / year', kk: '$30,000 дейін / жыл' },
+    description: { ru: 'Максимум финансовой помощи', en: 'Maximum financial aid', kk: 'Максималды қаржылық көмек' }
+  },
+  { 
+    id: 'medium', 
+    label: { ru: '$30,000 – $100,000 / год', en: '$30,000 – $100,000 / year', kk: '$30,000 – $100,000 / жыл' },
+    description: { ru: 'Частичная помощь + Merit', en: 'Partial aid + Merit', kk: 'Жартылай көмек + Merit' }
+  },
+  { 
+    id: 'high', 
+    label: { ru: 'Свыше $100,000 / год', en: 'Over $100,000 / year', kk: '$100,000 жоғары / жыл' },
+    description: { ru: 'Merit-based стипендии', en: 'Merit-based scholarships', kk: 'Merit-based стипендиялар' }
+  },
+] as const;
+
+export const BUDGET_RANGES = [
+  { 
+    id: 'low', 
+    label: { ru: 'До $15,000 / год', en: 'Under $15,000 / year', kk: '$15,000 дейін / жыл' },
+    description: { ru: 'Нужна полная или почти полная помощь', en: 'Need full or near-full aid', kk: 'Толық немесе толыққа жақын көмек қажет' }
+  },
+  { 
+    id: 'medium', 
+    label: { ru: '$15,000 – $40,000 / год', en: '$15,000 – $40,000 / year', kk: '$15,000 – $40,000 / жыл' },
+    description: { ru: 'Можем частично покрыть', en: 'Can partially cover', kk: 'Ішінара жабамыз' }
+  },
+  { 
+    id: 'high', 
+    label: { ru: 'Свыше $40,000 / год', en: 'Over $40,000 / year', kk: '$40,000 жоғары / жыл' },
+    description: { ru: 'Можем покрыть полную стоимость', en: 'Can cover full cost', kk: 'Толық құнын жабамыз' }
+  },
+] as const;
+
 // Топовые университеты мира для выбора "фаворитов"
 export const TOP_UNIVERSITIES = [
   // USA
-  { id: 'harvard', name: 'Harvard University', country: 'usa', logo: '🏛️', rank: 1 },
-  { id: 'stanford', name: 'Stanford University', country: 'usa', logo: '🌲', rank: 2 },
-  { id: 'mit', name: 'MIT', country: 'usa', logo: '🔬', rank: 3 },
-  { id: 'yale', name: 'Yale University', country: 'usa', logo: '📚', rank: 5 },
-  { id: 'princeton', name: 'Princeton University', country: 'usa', logo: '🐯', rank: 6 },
-  { id: 'columbia', name: 'Columbia University', country: 'usa', logo: '🗽', rank: 12 },
-  { id: 'upenn', name: 'UPenn', country: 'usa', logo: '🔔', rank: 13 },
-  { id: 'caltech', name: 'Caltech', country: 'usa', logo: '🚀', rank: 15 },
-  { id: 'berkeley', name: 'UC Berkeley', country: 'usa', logo: '🐻', rank: 22 },
-  { id: 'ucla', name: 'UCLA', country: 'usa', logo: '☀️', rank: 29 },
-  { id: 'nyu', name: 'NYU', country: 'usa', logo: '🗽', rank: 35 },
-  { id: 'cornell', name: 'Cornell University', country: 'usa', logo: '🍂', rank: 17 },
+  { id: 'harvard', name: 'Harvard University', country: 'usa', logo: '🏛️', rank: 1, needBlind: true },
+  { id: 'stanford', name: 'Stanford University', country: 'usa', logo: '🌲', rank: 2, needBlind: false },
+  { id: 'mit', name: 'MIT', country: 'usa', logo: '🔬', rank: 3, needBlind: true },
+  { id: 'yale', name: 'Yale University', country: 'usa', logo: '📚', rank: 5, needBlind: true },
+  { id: 'princeton', name: 'Princeton University', country: 'usa', logo: '🐯', rank: 6, needBlind: true },
+  { id: 'columbia', name: 'Columbia University', country: 'usa', logo: '🗽', rank: 12, needBlind: false },
+  { id: 'upenn', name: 'UPenn', country: 'usa', logo: '🔔', rank: 13, needBlind: false },
+  { id: 'caltech', name: 'Caltech', country: 'usa', logo: '🚀', rank: 15, needBlind: false },
+  { id: 'berkeley', name: 'UC Berkeley', country: 'usa', logo: '🐻', rank: 22, needBlind: false },
+  { id: 'ucla', name: 'UCLA', country: 'usa', logo: '☀️', rank: 29, needBlind: false },
+  { id: 'nyu', name: 'NYU', country: 'usa', logo: '🗽', rank: 35, needBlind: false },
+  { id: 'cornell', name: 'Cornell University', country: 'usa', logo: '🍂', rank: 17, needBlind: false },
+  { id: 'amherst', name: 'Amherst College', country: 'usa', logo: '🟣', rank: 20, needBlind: true },
   
   // UK
-  { id: 'oxford', name: 'Oxford University', country: 'uk', logo: '📖', rank: 4 },
-  { id: 'cambridge', name: 'Cambridge University', country: 'uk', logo: '🎓', rank: 7 },
-  { id: 'imperial', name: 'Imperial College London', country: 'uk', logo: '👑', rank: 8 },
-  { id: 'lse', name: 'LSE', country: 'uk', logo: '💼', rank: 45 },
-  { id: 'ucl', name: 'UCL', country: 'uk', logo: '🦁', rank: 9 },
-  { id: 'edinburgh', name: 'University of Edinburgh', country: 'uk', logo: '🏰', rank: 27 },
+  { id: 'oxford', name: 'Oxford University', country: 'uk', logo: '📖', rank: 4, needBlind: false },
+  { id: 'cambridge', name: 'Cambridge University', country: 'uk', logo: '🎓', rank: 7, needBlind: false },
+  { id: 'imperial', name: 'Imperial College London', country: 'uk', logo: '👑', rank: 8, needBlind: false },
+  { id: 'lse', name: 'LSE', country: 'uk', logo: '💼', rank: 45, needBlind: false },
+  { id: 'ucl', name: 'UCL', country: 'uk', logo: '🦁', rank: 9, needBlind: false },
+  { id: 'edinburgh', name: 'University of Edinburgh', country: 'uk', logo: '🏰', rank: 27, needBlind: false },
   
   // Europe
-  { id: 'eth', name: 'ETH Zurich', country: 'eu', logo: '🇨🇭', rank: 10 },
-  { id: 'epfl', name: 'EPFL', country: 'eu', logo: '🇨🇭', rank: 36 },
-  { id: 'lmu', name: 'LMU Munich', country: 'eu', logo: '🇩🇪', rank: 54 },
-  { id: 'tu_munich', name: 'TU Munich', country: 'eu', logo: '🇩🇪', rank: 49 },
-  { id: 'sorbonne', name: 'Sorbonne University', country: 'eu', logo: '🇫🇷', rank: 72 },
-  { id: 'amsterdam', name: 'University of Amsterdam', country: 'eu', logo: '🇳🇱', rank: 58 },
+  { id: 'eth', name: 'ETH Zurich', country: 'eu', logo: '🇨🇭', rank: 10, needBlind: false },
+  { id: 'epfl', name: 'EPFL', country: 'eu', logo: '🇨🇭', rank: 36, needBlind: false },
+  { id: 'lmu', name: 'LMU Munich', country: 'eu', logo: '🇩🇪', rank: 54, needBlind: false },
+  { id: 'tu_munich', name: 'TU Munich', country: 'eu', logo: '🇩🇪', rank: 49, needBlind: false },
+  { id: 'sorbonne', name: 'Sorbonne University', country: 'eu', logo: '🇫🇷', rank: 72, needBlind: false },
+  { id: 'amsterdam', name: 'University of Amsterdam', country: 'eu', logo: '🇳🇱', rank: 58, needBlind: false },
   
   // Canada
-  { id: 'toronto', name: 'University of Toronto', country: 'canada', logo: '🍁', rank: 21 },
-  { id: 'mcgill', name: 'McGill University', country: 'canada', logo: '🍁', rank: 30 },
-  { id: 'ubc', name: 'UBC', country: 'canada', logo: '🏔️', rank: 34 },
+  { id: 'toronto', name: 'University of Toronto', country: 'canada', logo: '🍁', rank: 21, needBlind: false },
+  { id: 'mcgill', name: 'McGill University', country: 'canada', logo: '🍁', rank: 30, needBlind: false },
+  { id: 'ubc', name: 'UBC', country: 'canada', logo: '🏔️', rank: 34, needBlind: false },
   
   // Asia
-  { id: 'nus', name: 'NUS Singapore', country: 'asia', logo: '🇸🇬', rank: 11 },
-  { id: 'ntu', name: 'NTU Singapore', country: 'asia', logo: '🇸🇬', rank: 19 },
-  { id: 'hku', name: 'HKU', country: 'asia', logo: '🇭🇰', rank: 26 },
-  { id: 'tokyo', name: 'University of Tokyo', country: 'asia', logo: '🇯🇵', rank: 28 },
-  { id: 'tsinghua', name: 'Tsinghua University', country: 'asia', logo: '🇨🇳', rank: 14 },
-  { id: 'peking', name: 'Peking University', country: 'asia', logo: '🇨🇳', rank: 17 },
-  { id: 'kaist', name: 'KAIST', country: 'asia', logo: '🇰🇷', rank: 41 },
+  { id: 'nus', name: 'NUS Singapore', country: 'asia', logo: '🇸🇬', rank: 11, needBlind: false },
+  { id: 'ntu', name: 'NTU Singapore', country: 'asia', logo: '🇸🇬', rank: 19, needBlind: false },
+  { id: 'hku', name: 'HKU', country: 'asia', logo: '🇭🇰', rank: 26, needBlind: false },
+  { id: 'tokyo', name: 'University of Tokyo', country: 'asia', logo: '🇯🇵', rank: 28, needBlind: false },
+  { id: 'tsinghua', name: 'Tsinghua University', country: 'asia', logo: '🇨🇳', rank: 14, needBlind: false },
+  { id: 'peking', name: 'Peking University', country: 'asia', logo: '🇨🇳', rank: 17, needBlind: false },
+  { id: 'kaist', name: 'KAIST', country: 'asia', logo: '🇰🇷', rank: 41, needBlind: false },
   
   // Kazakhstan
-  { id: 'nu', name: 'Nazarbayev University', country: 'kz', logo: '🇰🇿', rank: 1 },
-  { id: 'kimep', name: 'KIMEP University', country: 'kz', logo: '🇰🇿', rank: 2 },
-  { id: 'kbtu', name: 'KBTU', country: 'kz', logo: '🇰🇿', rank: 3 },
-  { id: 'kaznu', name: 'КазНУ им. Аль-Фараби', country: 'kz', logo: '🇰🇿', rank: 4 },
-  { id: 'satbayev', name: 'Satbayev University', country: 'kz', logo: '🇰🇿', rank: 5 },
+  { id: 'nu', name: 'Nazarbayev University', country: 'kz', logo: '🇰🇿', rank: 1, needBlind: false },
+  { id: 'kimep', name: 'KIMEP University', country: 'kz', logo: '🇰🇿', rank: 2, needBlind: false },
+  { id: 'kbtu', name: 'KBTU', country: 'kz', logo: '🇰🇿', rank: 3, needBlind: false },
+  { id: 'kaznu', name: 'КазНУ им. Аль-Фараби', country: 'kz', logo: '🇰🇿', rank: 4, needBlind: false },
+  { id: 'satbayev', name: 'Satbayev University', country: 'kz', logo: '🇰🇿', rank: 5, needBlind: false },
 ] as const;
 
 export type University = typeof TOP_UNIVERSITIES[number];
+export type Role = typeof ROLES[number]['id'];
+export type IncomeRange = typeof INCOME_RANGES[number]['id'];
+export type BudgetRange = typeof BUDGET_RANGES[number]['id'];
+
+// Calculate EFC segment based on income and budget
+export function calculateEFCSegment(incomeRange: IncomeRange, budgetRange: BudgetRange): 'low' | 'medium' | 'high' {
+  if (incomeRange === 'low' || budgetRange === 'low') {
+    return 'low';
+  }
+  if (incomeRange === 'high' && budgetRange === 'high') {
+    return 'high';
+  }
+  return 'medium';
+}

@@ -12,8 +12,13 @@ import {
   ProfileStep,
   AuthStep,
   AnalyzingAnimation,
+  RoleStep,
+  EFCStep,
   TOP_UNIVERSITIES,
+  calculateEFCSegment,
   type OnboardingStep,
+  type IncomeRange,
+  type BudgetRange,
 } from "@/features/onboarding";
 
 const Onboarding = () => {
@@ -25,7 +30,11 @@ const Onboarding = () => {
   const [loading, setLoading] = useState(false);
   
   // Form data
+  const [role, setRole] = useState("");
   const [goal, setGoal] = useState("");
+  const [residenceCountry, setResidenceCountry] = useState("");
+  const [incomeRange, setIncomeRange] = useState("");
+  const [budgetRange, setBudgetRange] = useState("");
   const [grade, setGrade] = useState("");
   const [country, setCountry] = useState("");
   const [universities, setUniversities] = useState<string[]>([]);
@@ -34,13 +43,15 @@ const Onboarding = () => {
   const language = 'ru' as const;
 
   const canProceed = () => {
-    if (step === 1) return !!goal;
-    if (step === 2) return !!grade && !!country;
+    if (step === 1) return !!role;
+    if (step === 2) return !!goal;
+    if (step === 3) return !!residenceCountry && !!incomeRange && !!budgetRange;
+    if (step === 4) return !!grade && !!country;
     return true;
   };
 
   const handleNext = () => {
-    if (step < 3) {
+    if (step < 5) {
       setStep((step + 1) as OnboardingStep);
     }
   };
@@ -66,16 +77,33 @@ const Onboarding = () => {
         return;
       }
 
-      // Save onboarding data to roadmaps table
+      // Save onboarding data
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
+        // Calculate EFC segment
+        const efcSegment = calculateEFCSegment(
+          incomeRange as IncomeRange, 
+          budgetRange as BudgetRange
+        );
+
+        // Save EFC data
+        await supabase.from('user_efc_data').insert({
+          user_id: user.id,
+          role: role,
+          residence_country: residenceCountry,
+          income_range: incomeRange,
+          budget_range: budgetRange,
+          efc_segment: efcSegment,
+        });
+
         // Get university names for display
         const selectedUniNames = universities
           .map(id => TOP_UNIVERSITIES.find(u => u.id === id)?.name)
           .filter(Boolean)
           .join(', ');
 
+        // Save roadmap data
         await supabase.from('roadmaps').insert({
           user_id: user.id,
           main_goal: goal,
@@ -100,7 +128,7 @@ const Onboarding = () => {
   };
 
   const handleAnalyzingComplete = () => {
-    toast.success("Добро пожаловать! Твой план готов.");
+    toast.success("Добро пожаловать! Твой персональный путь готов.");
     navigate("/dashboard", { replace: true });
   };
 
@@ -130,7 +158,7 @@ const Onboarding = () => {
           <div className="w-10" />
         )}
         
-        <StepIndicator currentStep={step} totalSteps={3} />
+        <StepIndicator currentStep={step} totalSteps={5} />
         
         <div className="w-10" />
       </header>
@@ -140,6 +168,14 @@ const Onboarding = () => {
         <div className="flex-1 max-w-lg mx-auto w-full overflow-y-auto">
           <AnimatePresence mode="wait">
             {step === 1 && (
+              <RoleStep
+                key="role"
+                selectedRole={role}
+                onSelect={setRole}
+                language={language}
+              />
+            )}
+            {step === 2 && (
               <GoalStep
                 key="goal"
                 selectedGoal={goal}
@@ -147,7 +183,19 @@ const Onboarding = () => {
                 language={language}
               />
             )}
-            {step === 2 && (
+            {step === 3 && (
+              <EFCStep
+                key="efc"
+                residenceCountry={residenceCountry}
+                incomeRange={incomeRange}
+                budgetRange={budgetRange}
+                onResidenceSelect={setResidenceCountry}
+                onIncomeSelect={setIncomeRange}
+                onBudgetSelect={setBudgetRange}
+                language={language}
+              />
+            )}
+            {step === 4 && (
               <ProfileStep
                 key="profile"
                 grade={grade}
@@ -159,7 +207,7 @@ const Onboarding = () => {
                 language={language}
               />
             )}
-            {step === 3 && (
+            {step === 5 && (
               <AuthStep
                 key="auth"
                 onSubmit={handleAuthSubmit}
@@ -170,8 +218,8 @@ const Onboarding = () => {
           </AnimatePresence>
         </div>
 
-        {/* Navigation Button (only for steps 1-2) */}
-        {step < 3 && (
+        {/* Navigation Button (only for steps 1-4) */}
+        {step < 5 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
