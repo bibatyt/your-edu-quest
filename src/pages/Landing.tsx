@@ -1,10 +1,12 @@
 import {
   Header,
   HeroSection,
-  FeaturesSection,
+  VideoDemoSection,
+  ScreenshotsSection,
+  AdvantagesSection,
   ProcessSection,
-  MentorSection,
-  TestimonialsSection,
+  EFCSection,
+  SuccessStoriesSection,
   FooterSection,
 } from "@/features/landing";
 
@@ -14,10 +16,12 @@ const Landing = () => {
       <Header />
       <main>
         <HeroSection />
-        <FeaturesSection />
+        <VideoDemoSection />
+        <ScreenshotsSection />
+        <AdvantagesSection />
         <ProcessSection />
-        <MentorSection />
-        <TestimonialsSection />
+        <EFCSection />
+        <SuccessStoriesSection />
         <FooterSection />
       </main>
     </div>
