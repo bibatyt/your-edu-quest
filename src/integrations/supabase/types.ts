@@ -103,6 +103,54 @@ export type Database = {
         }
         Relationships: []
       }
+      path_milestones: {
+        Row: {
+          category: string
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          efc_specific: boolean
+          id: string
+          metadata: Json | null
+          order_index: number
+          priority: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          efc_specific?: boolean
+          id?: string
+          metadata?: Json | null
+          order_index?: number
+          priority?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          efc_specific?: boolean
+          id?: string
+          metadata?: Json | null
+          order_index?: number
+          priority?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -244,6 +292,123 @@ export type Database = {
           main_goal?: string
           sat_score?: number | null
           target_country?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      success_stories: {
+        Row: {
+          country: string
+          created_at: string
+          efc_segment: string
+          gpa_range: string | null
+          id: string
+          image_url: string | null
+          name: string
+          residence_country: string | null
+          scholarship_amount: string | null
+          story: string
+          university: string
+        }
+        Insert: {
+          country: string
+          created_at?: string
+          efc_segment: string
+          gpa_range?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          residence_country?: string | null
+          scholarship_amount?: string | null
+          story: string
+          university: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          efc_segment?: string
+          gpa_range?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          residence_country?: string | null
+          scholarship_amount?: string | null
+          story?: string
+          university?: string
+        }
+        Relationships: []
+      }
+      university_recommendations: {
+        Row: {
+          country: string
+          created_at: string
+          financial_aid_available: boolean
+          id: string
+          match_score: number
+          reason: string | null
+          scholarship_type: string | null
+          university_id: string | null
+          university_name: string
+          user_id: string
+        }
+        Insert: {
+          country: string
+          created_at?: string
+          financial_aid_available?: boolean
+          id?: string
+          match_score?: number
+          reason?: string | null
+          scholarship_type?: string | null
+          university_id?: string | null
+          university_name: string
+          user_id: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          financial_aid_available?: boolean
+          id?: string
+          match_score?: number
+          reason?: string | null
+          scholarship_type?: string | null
+          university_id?: string | null
+          university_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_efc_data: {
+        Row: {
+          budget_range: string
+          created_at: string
+          efc_segment: string
+          id: string
+          income_range: string
+          residence_country: string
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget_range: string
+          created_at?: string
+          efc_segment: string
+          id?: string
+          income_range: string
+          residence_country: string
+          role: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget_range?: string
+          created_at?: string
+          efc_segment?: string
+          id?: string
+          income_range?: string
+          residence_country?: string
+          role?: string
           updated_at?: string
           user_id?: string
         }

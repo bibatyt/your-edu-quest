@@ -1,4 +1,4 @@
-import { Home, MessageCircle, FileText, Settings } from "lucide-react";
+import { Home, MessageCircle, FileText, Settings, Map } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -8,6 +8,7 @@ export function BottomNav() {
   
   const navItems = [
     { to: "/dashboard", icon: Home, labelKey: "home" },
+    { to: "/path", icon: Map, labelKey: "path" },
     { to: "/counselor", icon: MessageCircle, labelKey: "ai" },
     { to: "/essay", icon: FileText, labelKey: "essay" },
     { to: "/settings", icon: Settings, labelKey: "settings" },
