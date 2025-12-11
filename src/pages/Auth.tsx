@@ -127,11 +127,26 @@ const Auth = () => {
   const { language } = useLandingLanguage();
   const t = authTranslations[language];
 
-  // Redirect if already logged in
+  // Redirect if already logged in - check if has roadmap
   useEffect(() => {
-    if (user) {
-      navigate("/dashboard", { replace: true });
-    }
+    const checkAndRedirect = async () => {
+      if (!user) return;
+      
+      const { data: roadmaps } = await supabase
+        .from('roadmaps')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+      
+      if (!roadmaps || roadmaps.length === 0) {
+        // No roadmap, go to onboarding
+        navigate("/onboarding", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+    };
+    
+    checkAndRedirect();
   }, [user, navigate]);
 
   const sendVerificationCode = async () => {
@@ -220,10 +235,26 @@ const Auth = () => {
           } else {
             toast.error(error.message);
           }
+          setLoading(false);
           return;
         }
-        toast.success(t.welcome);
-        navigate("/dashboard");
+        
+        // Check if user has a roadmap after login
+        const { data: { user: loggedInUser } } = await supabase.auth.getUser();
+        if (loggedInUser) {
+          const { data: roadmaps } = await supabase
+            .from('roadmaps')
+            .select('id')
+            .eq('user_id', loggedInUser.id)
+            .limit(1);
+          
+          toast.success(t.welcome);
+          if (!roadmaps || roadmaps.length === 0) {
+            navigate("/onboarding", { replace: true });
+          } else {
+            navigate("/dashboard", { replace: true });
+          }
+        }
       } else {
         // For signup, first send verification code
         setLoading(false);
