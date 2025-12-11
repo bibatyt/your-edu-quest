@@ -12,6 +12,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import confetti from "canvas-confetti";
 import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const { profile, loading, updateStreak } = useProfile();
@@ -22,6 +24,32 @@ const Dashboard = () => {
   const [showOtherTasks, setShowOtherTasks] = useState(false);
   const { language } = useLandingLanguage();
   const t = landingTranslations[language];
+  const { user } = useAuth();
+  const [checkingRoadmap, setCheckingRoadmap] = useState(true);
+
+  // Check if user has a roadmap, if not redirect to onboarding
+  useEffect(() => {
+    const checkRoadmap = async () => {
+      if (!user) return;
+      
+      const { data: roadmaps } = await supabase
+        .from('roadmaps')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+      
+      if (!roadmaps || roadmaps.length === 0) {
+        // No roadmap found, redirect to onboarding
+        navigate('/onboarding', { replace: true });
+      } else {
+        setCheckingRoadmap(false);
+      }
+    };
+    
+    if (user) {
+      checkRoadmap();
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     if (profile) {
@@ -54,7 +82,7 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) {
+  if (loading || checkingRoadmap) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
