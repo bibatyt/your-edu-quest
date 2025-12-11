@@ -46,7 +46,7 @@ export function Header() {
           </a>
           <LanguageSwitcher />
           <Link to="/auth">
-            <Button variant="ghost" size="sm" className="font-medium">
+            <Button variant="outline" size="sm" className="font-semibold">
               {t.signIn}
             </Button>
           </Link>
