@@ -16,28 +16,27 @@ export function QadamLogo({ size = 36, className = "", animated = false }: Qadam
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      {/* Minimalist path/step design */}
       <rect 
         x="4" 
         y="4" 
         width="32" 
         height="32" 
-        rx="8" 
+        rx="10" 
         className="fill-primary"
       />
-      
-      {/* Stylized "Q" with step accent */}
-      <path
-        d="M20 10C14.48 10 10 14.48 10 20C10 25.52 14.48 30 20 30C22.76 30 25.25 28.9 27.1 27.1L30 30L32 28L29.1 25.1C30.24 23.54 30.9 21.6 30.9 19.5C30.9 14.26 26.64 10 21.4 10H20ZM20 14C24.42 14 28 17.58 28 22C28 24.2 27.12 26.2 25.66 27.66L23 25V22C23 20.34 21.66 19 20 19C18.34 19 17 20.34 17 22C17 23.66 18.34 25 20 25V28C15.58 28 12 24.42 12 20C12 15.58 15.58 12 20 12V14Z"
+      <text
+        x="20"
+        y="28"
+        textAnchor="middle"
         className="fill-primary-foreground"
-        fillRule="evenodd"
-        clipRule="evenodd"
-      />
-      
-      {/* Step dots - ascending stairs effect */}
-      <circle cx="32" cy="32" r="2" className="fill-primary-foreground/50" />
-      <circle cx="27" cy="30" r="1.5" className="fill-primary-foreground/35" />
-      <circle cx="23" cy="28" r="1" className="fill-primary-foreground/25" />
+        style={{
+          fontSize: '24px',
+          fontWeight: 800,
+          fontFamily: 'system-ui, sans-serif'
+        }}
+      >
+        Q
+      </text>
     </svg>
   );
 
