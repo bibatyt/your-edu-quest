@@ -8,7 +8,7 @@ export function SuccessStoriesSection() {
 
   const stories = [
     {
-      name: language === 'ru' ? "Алия К." : language === 'kk' ? "Әлия К." : "Aliya K.",
+      name: "Syrym",
       country: language === 'ru' ? "Казахстан" : language === 'kk' ? "Қазақстан" : "Kazakhstan",
       university: "Harvard University",
       scholarship: "Full Financial Aid",
