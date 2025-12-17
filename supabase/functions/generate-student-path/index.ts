@@ -11,7 +11,22 @@ serve(async (req) => {
   }
 
   try {
-    const { grade, goal, exams, targetYear, language = "ru" } = await req.json();
+    const { 
+      grade, 
+      goal, 
+      exams, 
+      targetYear, 
+      language = "ru",
+      englishLevel,
+      ieltsScore,
+      entScore,
+      satScore,
+      gpa,
+      specialty,
+      needScholarship,
+      specificGoal
+    } = await req.json();
+    
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -19,9 +34,13 @@ serve(async (req) => {
     }
 
     const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
     const yearsUntilTarget = targetYear - currentYear;
+    const monthsUntilTarget = yearsUntilTarget * 12 - currentMonth;
 
-    const systemPrompt = `You are an expert university admission counselor. Generate a clear, actionable admission path for a high school student.
+    const langText = language === "ru" ? "Russian" : language === "kk" ? "Kazakh" : "English";
+
+    const systemPrompt = `You are an expert university admission counselor specializing in helping students from Kazakhstan apply to universities.
 
 IMPORTANT: Respond ONLY with valid JSON, no markdown or explanations.
 
@@ -29,31 +48,76 @@ The response must be a JSON object with this exact structure:
 {
   "milestones": [
     {
-      "id": "unique-id",
+      "id": "unique-id-1",
       "title": "Short milestone title",
-      "description": "1-2 sentence explanation",
+      "description": "1-2 sentence explanation with specific actions",
       "status": "not_started",
       "category": "category name",
       "order": 1
     }
   ],
-  "currentStage": "Current stage description"
+  "currentStage": "Current stage description",
+  "recommendations": [
+    "Specific actionable recommendation 1",
+    "Specific actionable recommendation 2",
+    "Specific actionable recommendation 3"
+  ],
+  "warnings": [
+    "Common mistake to avoid 1",
+    "Common mistake to avoid 2", 
+    "Common mistake to avoid 3"
+  ],
+  "expectedProgressByMonth": {
+    "1": 5,
+    "3": 15,
+    "6": 35,
+    "9": 55,
+    "12": 80
+  }
 }
 
 Categories to use: "preparation", "exams", "documents", "applications", "final"
 Status must always be "not_started" for new milestones.
-Generate 8-12 milestones that are realistic and actionable.
-Language for content: ${language === "ru" ? "Russian" : language === "kk" ? "Kazakh" : "English"}`;
+Generate 10-15 milestones that are realistic, specific and actionable.
+Include specific deadlines and dates where applicable.
 
-    const userPrompt = `Create an admission path for:
+Recommendations should be personalized based on the student's scores and goals.
+Warnings should highlight common mistakes students make in this specific situation.
+expectedProgressByMonth shows what % of milestones should be done by each month (from now).
+
+Language for ALL content: ${langText}`;
+
+    const userPrompt = `Create a detailed admission path for a student with these details:
+
+PROFILE:
 - Grade: ${grade}
-- Goal: ${goal === "local" ? "Local/National University" : "International University"}
+- Goal region: ${goal === "local" ? "Kazakhstan universities" : "International universities (USA, Europe, Asia)"}
+- Specific goal: ${specificGoal || "Not specified"}
 - Main exams: ${exams.join(", ")}
-- Target intake year: ${targetYear} (${yearsUntilTarget} year${yearsUntilTarget > 1 ? "s" : ""} from now)
+- Target intake year: ${targetYear} (${yearsUntilTarget} year${yearsUntilTarget > 1 ? "s" : ""}, ~${monthsUntilTarget} months from now)
 
-Generate milestones that are specific to these exams and timeline. Include exam preparation, document preparation, and application steps.`;
+SCORES:
+- English level: ${englishLevel || "Not specified"}
+- IELTS: ${ieltsScore || "Not taken yet"}
+- ENT: ${entScore || "Not taken yet"}
+- SAT: ${satScore || "Not taken yet"}
+- GPA (out of 5): ${gpa || "Not specified"}
 
-    console.log("Generating path with Lovable AI...");
+PREFERENCES:
+- Specialty: ${specialty || "Not decided"}
+- Need scholarship: ${needScholarship ? "Yes, looking for financial aid" : "No, can self-fund"}
+
+Generate a comprehensive plan with:
+1. Milestones covering exam preparation, score improvement, document preparation, university research, applications, and final steps
+2. 5 personalized recommendations based on their current scores and goals
+3. 5 common mistakes to avoid specific to their situation
+4. Expected progress timeline
+
+${needScholarship ? "IMPORTANT: Include scholarship application milestones and deadlines." : ""}
+${ieltsScore && parseFloat(ieltsScore) < 6.5 ? "IMPORTANT: Student needs significant IELTS improvement - include intensive preparation milestones." : ""}
+${specificGoal?.toLowerCase().includes("ivy") || specificGoal?.toLowerCase().includes("grant") ? "IMPORTANT: Student has ambitious goals - include competitive positioning strategies and backup options." : ""}`;
+
+    console.log("Generating comprehensive path with Lovable AI...");
     
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -115,6 +179,8 @@ Generate milestones that are specific to these exams and timeline. Include exam 
     const pathData = JSON.parse(cleanedContent);
     
     console.log("Path generated successfully with", pathData.milestones?.length, "milestones");
+    console.log("Recommendations:", pathData.recommendations?.length);
+    console.log("Warnings:", pathData.warnings?.length);
 
     return new Response(
       JSON.stringify(pathData),

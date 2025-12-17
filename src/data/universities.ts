@@ -59,16 +59,14 @@ export const universities: University[] = [
 ];
 
 export const specialties = [
-  { id: "cs", name: "Computer Science / IT", nameRu: "Компьютерные науки / IT" },
-  { id: "engineering", name: "Engineering", nameRu: "Инженерия" },
-  { id: "business", name: "Business / Management", nameRu: "Бизнес / Менеджмент" },
-  { id: "medicine", name: "Medicine", nameRu: "Медицина" },
-  { id: "law", name: "Law", nameRu: "Юриспруденция" },
-  { id: "economics", name: "Economics / Finance", nameRu: "Экономика / Финансы" },
-  { id: "arts", name: "Arts / Design", nameRu: "Искусство / Дизайн" },
-  { id: "science", name: "Natural Sciences", nameRu: "Естественные науки" },
-  { id: "social", name: "Social Sciences", nameRu: "Социальные науки" },
-  { id: "education", name: "Education", nameRu: "Образование" },
+  { id: "cs", name: "Computer Science / IT", nameRu: "IT / Компьютеры", icon: "💻" },
+  { id: "engineering", name: "Engineering", nameRu: "Инженерия", icon: "⚙️" },
+  { id: "business", name: "Business / Management", nameRu: "Бизнес", icon: "📊" },
+  { id: "medicine", name: "Medicine", nameRu: "Медицина", icon: "🏥" },
+  { id: "law", name: "Law", nameRu: "Право", icon: "⚖️" },
+  { id: "economics", name: "Economics / Finance", nameRu: "Финансы", icon: "💰" },
+  { id: "arts", name: "Arts / Design", nameRu: "Дизайн", icon: "🎨" },
+  { id: "science", name: "Natural Sciences", nameRu: "Науки", icon: "🔬" },
 ];
 
 export const englishLevels = [
