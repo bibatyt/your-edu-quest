@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Loader2, Check, GraduationCap } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Check, GraduationCap, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -22,18 +22,22 @@ const translations = {
     localDesc: "ЕНТ, местные вузы",
     international: "За рубеж",
     internationalDesc: "США, Европа, Азия",
-    step3Title: "Какие экзамены сдаёте?",
-    step3Hint: "Можно выбрать несколько",
-    step4Title: "Год поступления",
-    step5Title: "Уровень английского",
-    step6Title: "Ваши баллы",
+    step3Title: "Какая ваша цель?",
+    step3Hint: "Введите конкретную цель",
+    goalPlaceholder: "Например: получить грант в Ivy League",
+    goalExamples: ["Получить грант", "Поступить в Ivy League", "Топ-50 США", "Учиться в Европе", "Nazarbayev University"],
+    step4Title: "Какие экзамены сдаёте?",
+    step4Hint: "Можно выбрать несколько",
+    step5Title: "Год поступления",
+    step6Title: "Уровень английского",
+    step7Title: "Ваши баллы",
     ieltsScore: "IELTS балл (если есть)",
     entScore: "ЕНТ балл (если есть)",
     satScore: "SAT балл (если есть)",
     gpaScore: "Средний балл (из 5)",
-    step7Title: "Специальность",
-    step7Hint: "Выберите направление",
-    step8Title: "Нужна стипендия?",
+    step8Title: "Специальность",
+    step8Hint: "Выберите направление",
+    step9Title: "Нужна стипендия?",
     yes: "Да, нужна",
     yesDesc: "Буду искать финансирование",
     no: "Нет, не нужна",
@@ -54,18 +58,22 @@ const translations = {
     localDesc: "ENT, local universities",
     international: "Abroad",
     internationalDesc: "USA, Europe, Asia",
-    step3Title: "Which exams will you take?",
-    step3Hint: "You can select multiple",
-    step4Title: "Target year",
-    step5Title: "English level",
-    step6Title: "Your scores",
+    step3Title: "What is your goal?",
+    step3Hint: "Enter your specific goal",
+    goalPlaceholder: "e.g. Get a scholarship to Ivy League",
+    goalExamples: ["Get scholarship", "Ivy League", "Top-50 USA", "Study in Europe", "Nazarbayev University"],
+    step4Title: "Which exams will you take?",
+    step4Hint: "You can select multiple",
+    step5Title: "Target year",
+    step6Title: "English level",
+    step7Title: "Your scores",
     ieltsScore: "IELTS score (if any)",
     entScore: "ENT score (if any)",
     satScore: "SAT score (if any)",
     gpaScore: "GPA (out of 5)",
-    step7Title: "Specialty",
-    step7Hint: "Choose your field",
-    step8Title: "Need scholarship?",
+    step8Title: "Specialty",
+    step8Hint: "Choose your field",
+    step9Title: "Need scholarship?",
     yes: "Yes, I need",
     yesDesc: "Looking for financial aid",
     no: "No, I don't",
@@ -86,18 +94,22 @@ const translations = {
     localDesc: "ЕНТ, жергілікті ЖОО",
     international: "Шетел",
     internationalDesc: "АҚШ, Еуропа, Азия",
-    step3Title: "Қандай емтихандар тапсырасыз?",
-    step3Hint: "Бірнешеуін таңдауға болады",
-    step4Title: "Түсу жылы",
-    step5Title: "Ағылшын деңгейі",
-    step6Title: "Сіздің балдарыңыз",
+    step3Title: "Сіздің мақсатыңыз қандай?",
+    step3Hint: "Нақты мақсатыңызды енгізіңіз",
+    goalPlaceholder: "Мысалы: Ivy League-ге грант алу",
+    goalExamples: ["Грант алу", "Ivy League", "АҚШ Топ-50", "Еуропада оқу", "Nazarbayev University"],
+    step4Title: "Қандай емтихандар тапсырасыз?",
+    step4Hint: "Бірнешеуін таңдауға болады",
+    step5Title: "Түсу жылы",
+    step6Title: "Ағылшын деңгейі",
+    step7Title: "Сіздің балдарыңыз",
     ieltsScore: "IELTS балы (бар болса)",
     entScore: "ЕНТ балы (бар болса)",
     satScore: "SAT балы (бар болса)",
     gpaScore: "Орташа балл (5-тен)",
-    step7Title: "Мамандық",
-    step7Hint: "Бағытты таңдаңыз",
-    step8Title: "Стипендия керек пе?",
+    step8Title: "Мамандық",
+    step8Hint: "Бағытты таңдаңыз",
+    step9Title: "Стипендия керек пе?",
     yes: "Иә, керек",
     yesDesc: "Қаржыландыру іздеймін",
     no: "Жоқ, керек емес",
@@ -167,7 +179,7 @@ const ExamOption = ({ selected, onClick, label }: ExamOptionProps) => (
   </motion.button>
 );
 
-const TOTAL_STEPS = 8;
+const TOTAL_STEPS = 9;
 
 export default function StudentOnboarding() {
   const navigate = useNavigate();
@@ -180,6 +192,7 @@ export default function StudentOnboarding() {
 
   const [grade, setGrade] = useState("");
   const [goal, setGoal] = useState("");
+  const [specificGoal, setSpecificGoal] = useState("");
   const [exams, setExams] = useState<string[]>([]);
   const [targetYear, setTargetYear] = useState<number | null>(null);
   const [englishLevel, setEnglishLevel] = useState("");
@@ -196,12 +209,13 @@ export default function StudentOnboarding() {
   const canProceed = () => {
     if (step === 1) return !!grade;
     if (step === 2) return !!goal;
-    if (step === 3) return exams.length > 0;
-    if (step === 4) return !!targetYear;
-    if (step === 5) return !!englishLevel;
-    if (step === 6) return true; // Scores are optional
-    if (step === 7) return !!specialty;
-    if (step === 8) return needScholarship !== null;
+    if (step === 3) return specificGoal.trim().length >= 3;
+    if (step === 4) return exams.length > 0;
+    if (step === 5) return !!targetYear;
+    if (step === 6) return !!englishLevel;
+    if (step === 7) return true; // Scores are optional
+    if (step === 8) return !!specialty;
+    if (step === 9) return needScholarship !== null;
     return false;
   };
 
@@ -251,11 +265,15 @@ export default function StudentOnboarding() {
             gpa: gpa || null,
             specialty,
             needScholarship,
+            specificGoal,
           } 
         }
       );
 
       if (pathError) throw pathError;
+
+      // Calculate expected progress based on AI response
+      const expectedProgress = pathData.expectedProgressByMonth?.["1"] || 5;
 
       const { error: saveError } = await supabase.from("student_paths").insert({
         user_id: user.id,
@@ -266,6 +284,10 @@ export default function StudentOnboarding() {
         milestones: pathData.milestones || [],
         current_stage: pathData.currentStage || "",
         progress_percent: 0,
+        specific_goal: specificGoal,
+        ai_recommendations: pathData.recommendations || [],
+        ai_warnings: pathData.warnings || [],
+        expected_progress_percent: expectedProgress,
       });
 
       if (saveError) throw saveError;
@@ -309,7 +331,7 @@ export default function StudentOnboarding() {
               key={i}
               initial={{ scale: 0.8 }}
               animate={{ scale: i + 1 <= step ? 1 : 0.8 }}
-              className={`h-1.5 w-6 rounded-full transition-colors ${
+              className={`h-1.5 w-5 rounded-full transition-colors ${
                 i + 1 <= step ? "bg-primary" : "bg-border"
               }`}
             />
@@ -358,10 +380,47 @@ export default function StudentOnboarding() {
             )}
 
             {step === 3 && (
-              <div className="space-y-4">
-                <div className="text-center mb-8">
+              <div className="space-y-5">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Target className="w-8 h-8 text-primary" />
+                  </div>
                   <h1 className="text-2xl font-bold text-foreground">{t.step3Title}</h1>
                   <p className="text-sm text-muted-foreground mt-2">{t.step3Hint}</p>
+                </div>
+                
+                <Input
+                  placeholder={t.goalPlaceholder}
+                  value={specificGoal}
+                  onChange={(e) => setSpecificGoal(e.target.value)}
+                  className="h-14 rounded-2xl text-base px-5"
+                />
+                
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {t.goalExamples.map((example) => (
+                    <motion.button
+                      key={example}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSpecificGoal(example)}
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                        specificGoal === example
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {example}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div className="space-y-4">
+                <div className="text-center mb-8">
+                  <h1 className="text-2xl font-bold text-foreground">{t.step4Title}</h1>
+                  <p className="text-sm text-muted-foreground mt-2">{t.step4Hint}</p>
                 </div>
                 <div className="flex flex-wrap gap-3 justify-center">
                   {["IELTS", "SAT", "ЕНТ", "TOEFL", "ACT", "GRE"].map((exam) => (
@@ -376,10 +435,10 @@ export default function StudentOnboarding() {
               </div>
             )}
 
-            {step === 4 && (
+            {step === 5 && (
               <div className="space-y-4">
                 <h1 className="text-2xl font-bold text-foreground text-center mb-8">
-                  {t.step4Title}
+                  {t.step5Title}
                 </h1>
                 {years.map((year) => (
                   <Option key={year} selected={targetYear === year} onClick={() => setTargetYear(year)} title={String(year)} />
@@ -387,10 +446,10 @@ export default function StudentOnboarding() {
               </div>
             )}
 
-            {step === 5 && (
+            {step === 6 && (
               <div className="space-y-4">
                 <h1 className="text-2xl font-bold text-foreground text-center mb-8">
-                  {t.step5Title}
+                  {t.step6Title}
                 </h1>
                 {englishLevels.map((level) => (
                   <Option 
@@ -403,10 +462,10 @@ export default function StudentOnboarding() {
               </div>
             )}
 
-            {step === 6 && (
+            {step === 7 && (
               <div className="space-y-5">
                 <h1 className="text-2xl font-bold text-foreground text-center mb-8">
-                  {t.step6Title}
+                  {t.step7Title}
                 </h1>
                 <div className="space-y-4">
                   <div>
@@ -463,11 +522,11 @@ export default function StudentOnboarding() {
               </div>
             )}
 
-            {step === 7 && (
+            {step === 8 && (
               <div className="space-y-4">
                 <div className="text-center mb-6">
-                  <h1 className="text-2xl font-bold text-foreground">{t.step7Title}</h1>
-                  <p className="text-sm text-muted-foreground mt-2">{t.step7Hint}</p>
+                  <h1 className="text-2xl font-bold text-foreground">{t.step8Title}</h1>
+                  <p className="text-sm text-muted-foreground mt-2">{t.step8Hint}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {specialties.map((spec) => (
@@ -482,7 +541,8 @@ export default function StudentOnboarding() {
                           : "border-border bg-card hover:border-primary/30"
                       }`}
                     >
-                      <span className={`text-sm font-semibold ${specialty === spec.id ? "text-primary" : "text-foreground"}`}>
+                      <span className="text-2xl mb-2 block">{spec.icon}</span>
+                      <span className={`text-sm font-medium ${specialty === spec.id ? "text-primary" : "text-foreground"}`}>
                         {spec.nameRu}
                       </span>
                     </motion.button>
@@ -491,10 +551,10 @@ export default function StudentOnboarding() {
               </div>
             )}
 
-            {step === 8 && (
+            {step === 9 && (
               <div className="space-y-4">
                 <h1 className="text-2xl font-bold text-foreground text-center mb-8">
-                  {t.step8Title}
+                  {t.step9Title}
                 </h1>
                 <Option selected={needScholarship === true} onClick={() => setNeedScholarship(true)} title={t.yes} subtitle={t.yesDesc} />
                 <Option selected={needScholarship === false} onClick={() => setNeedScholarship(false)} title={t.no} subtitle={t.noDesc} />
@@ -502,12 +562,14 @@ export default function StudentOnboarding() {
             )}
           </motion.div>
         </AnimatePresence>
+      </main>
 
-        {/* Bottom Button */}
-        <div className="mt-6 max-w-md mx-auto w-full">
+      {/* Footer */}
+      <footer className="p-4 pb-8 bg-card border-t border-border">
+        <div className="max-w-md mx-auto">
           {step < TOTAL_STEPS ? (
             <Button
-              className="w-full h-14 rounded-2xl text-base font-semibold"
+              className="w-full h-14 text-lg rounded-2xl font-bold"
               onClick={handleNext}
               disabled={!canProceed()}
             >
@@ -516,7 +578,7 @@ export default function StudentOnboarding() {
             </Button>
           ) : (
             <Button
-              className="w-full h-14 rounded-2xl text-base font-semibold"
+              className="w-full h-14 text-lg rounded-2xl font-bold"
               onClick={handleCreatePath}
               disabled={!canProceed() || loading}
             >
@@ -534,7 +596,7 @@ export default function StudentOnboarding() {
             </Button>
           )}
         </div>
-      </main>
+      </footer>
     </div>
   );
 }

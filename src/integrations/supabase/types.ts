@@ -395,40 +395,52 @@ export type Database = {
       }
       student_paths: {
         Row: {
+          ai_recommendations: Json | null
+          ai_warnings: Json | null
           created_at: string
           current_stage: string | null
           exams: string[]
+          expected_progress_percent: number | null
           goal: string
           grade: string
           id: string
           milestones: Json
           progress_percent: number
+          specific_goal: string | null
           target_year: number
           updated_at: string
           user_id: string
         }
         Insert: {
+          ai_recommendations?: Json | null
+          ai_warnings?: Json | null
           created_at?: string
           current_stage?: string | null
           exams?: string[]
+          expected_progress_percent?: number | null
           goal: string
           grade: string
           id?: string
           milestones?: Json
           progress_percent?: number
+          specific_goal?: string | null
           target_year: number
           updated_at?: string
           user_id: string
         }
         Update: {
+          ai_recommendations?: Json | null
+          ai_warnings?: Json | null
           created_at?: string
           current_stage?: string | null
           exams?: string[]
+          expected_progress_percent?: number | null
           goal?: string
           grade?: string
           id?: string
           milestones?: Json
           progress_percent?: number
+          specific_goal?: string | null
           target_year?: number
           updated_at?: string
           user_id?: string
