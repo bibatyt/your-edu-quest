@@ -2,14 +2,16 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics, logEvent as firebaseLogEvent } from "firebase/analytics";
 import type { Analytics } from "firebase/analytics";
 
+// Firebase config - these are publishable keys designed for client-side use
+// They are protected by Firebase Security Rules and domain restrictions
 const firebaseConfig = {
-  apiKey: "AIzaSyD_zqv--Dqpm6GuzmCMHsC27FCERVAZPyw",
-  authDomain: "qadam-ai.firebaseapp.com",
-  projectId: "qadam-ai",
-  storageBucket: "qadam-ai.firebasestorage.app",
-  messagingSenderId: "1028123082374",
-  appId: "1:1028123082374:web:cd971c74a3e4a1f0ae5b07",
-  measurementId: "G-PRZC1PGKDY"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 let analytics: Analytics | null = null;
