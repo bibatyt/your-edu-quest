@@ -33,7 +33,7 @@ const translations = {
     signup: "Регистрация",
     email: "Email",
     password: "Пароль",
-    name: "Имя",
+    createPassword: "Придумайте пароль",
     loginButton: "Войти",
     signupButton: "Зарегистрироваться",
     switchToSignup: "Нет аккаунта? Зарегистрируйтесь",
@@ -64,6 +64,7 @@ const translations = {
     signup: "Sign up",
     email: "Email",
     password: "Password",
+    createPassword: "Create a password",
     name: "Name",
     loginButton: "Login",
     signupButton: "Sign up",
@@ -95,6 +96,7 @@ const translations = {
     signup: "Тіркелу",
     email: "Email",
     password: "Құпия сөз",
+    createPassword: "Құпия сөз ойлап табыңыз",
     name: "Аты",
     loginButton: "Кіру",
     signupButton: "Тіркелу",
@@ -632,7 +634,7 @@ export default function AuthPage() {
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">{t.password}</Label>
+                <Label htmlFor="password">{mode === "signup" ? t.createPassword : t.password}</Label>
                 {mode === "login" && (
                   <button
                     type="button"
@@ -655,6 +657,7 @@ export default function AuthPage() {
                   }}
                   required
                   minLength={6}
+                  placeholder="••••••••"
                   className={`h-11 pl-10 pr-10 ${passwordError ? 'border-destructive' : ''}`}
                 />
                 <button
